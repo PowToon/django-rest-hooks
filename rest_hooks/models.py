@@ -15,7 +15,7 @@ except ImportError:
     # Django >= 1.7
     import json
 
-from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event
+from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event, get_hook_model
 
 from rest_hooks import signals
 
@@ -170,14 +170,20 @@ def custom_action(sender, action,
 @receiver(raw_hook_event, dispatch_uid='raw-custom-hook')
 def raw_custom_event(sender, event_name,
                              payload,
-                             user,
+                             user=None,
                              send_hook_meta=True,
                              instance=None,
+                             api_application=None,
                              **kwargs):
     """
     Give a full payload
     """
-    hooks = Hook.objects.filter(user=user, event=event_name)
+    HookModel = get_hook_model()
+    filters = {'event': event_name, 'user': user}
+    if hasattr(HookModel, 'api_application'):
+        filters['api_application'] = api_application
+
+    hooks = HookModel.objects.filter(**filters)
 
     for hook in hooks:
         new_payload = payload

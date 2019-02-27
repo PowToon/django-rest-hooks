@@ -29,13 +29,23 @@ def get_module(path):
 
     return func
 
+def get_hook_model():
+    """
+    Returns the Custom Hook model if defined in settings,
+    otherwise the default Hook model.
+    """
+    from rest_hooks.models import Hook
+    HookModel = Hook
+    if getattr(settings, 'HOOK_CUSTOM_MODEL', None):
+        HookModel = get_module(settings.HOOK_CUSTOM_MODEL)
+    return HookModel
 
 def find_and_fire_hook(event_name, instance, user_override=None):
     """
     Look up Hooks that apply
     """
     from django.contrib.auth.models import User
-    from rest_hooks.models import Hook, HOOK_EVENTS
+    from rest_hooks.models import HOOK_EVENTS
 
     if not event_name in HOOK_EVENTS.keys():
         raise Exception(
@@ -62,7 +72,9 @@ def find_and_fire_hook(event_name, instance, user_override=None):
     # usecase rather than erroring because no user is associated with
     # this event.
 
-    hooks = Hook.objects.filter(**filters)
+    HookModel = get_hook_model()
+
+    hooks = HookModel.objects.filter(**filters)
     for hook in hooks:
         hook.deliver_hook(instance)
 

@@ -5,7 +5,7 @@ from celery.task import Task
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from rest_hooks.models import Hook
+from rest_hooks.utils import get_hook_model
 
 
 class DeliverHook(Task):
