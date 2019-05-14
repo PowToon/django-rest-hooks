@@ -300,15 +300,22 @@ urlpatterns = patterns('',
 ```python
 ### serializers.py ###
 
-from rest_framework import serializers
+from django.conf import settings
+from rest_framework import serializers, exceptions
 
 from rest_hooks.models import Hook
 
 
 class HookSerializer(serializers.ModelSerializer):
-
+    def validate_event(self, event):
+        if event not in settings.HOOK_EVENTS:
+            err_msg = "Unexpected event {}".format(event)
+            raise exceptions.ValidationError(detail=err_msg, code=400)
+        return event    
+    
     class Meta:
         model = Hook
+        fields = '__all__'
         read_only_fields = ('user',)
 
 ### views.py ###
@@ -324,6 +331,7 @@ class HookViewSet(viewsets.ModelViewSet):
     """
     Retrieve, create, update or destroy webhooks.
     """
+    queryset = Hook.objects.all()
     model = Hook
     serializer_class = HookSerializer
 
@@ -409,6 +417,10 @@ The default `Hook` model fields can be extended using the `AbstractHook` model.
 For example, to add a `is_active` field on your hooks:
 
 ```python
+### settings.py ###
+
+HOOK_CUSTOM_MODEL = 'path.to.models.CustomHook'
+
 ### models.py ###
 
 from django.db import models

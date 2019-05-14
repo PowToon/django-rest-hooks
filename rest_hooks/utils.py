@@ -40,11 +40,18 @@ def get_hook_model():
         HookModel = get_module(settings.HOOK_CUSTOM_MODEL)
     return HookModel
 
+
 def find_and_fire_hook(event_name, instance, user_override=None):
     """
     Look up Hooks that apply
     """
-    from django.contrib.auth.models import User
+
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+    except ImportError:
+        from django.contrib.auth.models import User
+
     from rest_hooks.models import HOOK_EVENTS
 
     if not event_name in HOOK_EVENTS.keys():
@@ -81,7 +88,7 @@ def find_and_fire_hook(event_name, instance, user_override=None):
 
 def distill_model_event(instance, model, action, user_override=None):
     """
-    Take created, updated and deleted actions for built-in 
+    Take created, updated and deleted actions for built-in
     app/model mappings, convert to the defined event.name
     and let hooks fly.
 

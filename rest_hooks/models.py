@@ -180,6 +180,7 @@ def raw_custom_event(sender, event_name,
     Give a full payload
     """
     HookModel = get_hook_model()
+
     filters = {'event': event_name, 'user': user}
     if hasattr(HookModel, 'api_application') and api_application:
         filters.pop('user')
@@ -189,6 +190,7 @@ def raw_custom_event(sender, event_name,
         filters['environment'] = environment
 
     hooks = HookModel.objects.filter(**filters)
+
 
     for hook in hooks:
         new_payload = payload
