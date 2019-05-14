@@ -45,11 +45,13 @@ def find_and_fire_hook(event_name, instance, user_override=None):
     """
     Look up Hooks that apply
     """
+
     try:
         from django.contrib.auth import get_user_model
         User = get_user_model()
     except ImportError:
         from django.contrib.auth.models import User
+
     from rest_hooks.models import HOOK_EVENTS
 
     if not event_name in HOOK_EVENTS.keys():

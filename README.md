@@ -437,6 +437,7 @@ for advanced QuerySet filtering.
 ### settings.py ###
 
 HOOK_FINDER = 'path.to.find_and_fire_hook'
+HOOK_CUSTOM_MODEL = 'path.to.models.CustomHook'
 
 ### utils.py ###
 
